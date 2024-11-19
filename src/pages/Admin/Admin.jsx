@@ -34,7 +34,7 @@ import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Tooltip } fr
 import CloseIcon from '@mui/icons-material/Close'
 import { toast } from 'react-toastify'
 import UpdateUser from '~/components/Statistic/UpdateUser'
-
+import { API_ROOT } from '~/untils/contant'
 function Admin() {
 	const [slug] = useState('tiemcur')
 	const navigate = useNavigate()
@@ -86,7 +86,7 @@ function Admin() {
 	document.title = 'Admin Tiem CUX'
 	useEffect(() => {
 		const testAccess = async () => {
-			const res = await authorizedAxiosIntance.get('http://localhost:3000/v1/web/tiemcur/accesstoken')
+			const res = await authorizedAxiosIntance.get(`${API_ROOT}/v1/web/tiemcur/accesstoken`)
 
 			setUser(res.data)
 		}

@@ -31,6 +31,7 @@ import { formatDate, formatTime } from '~/untils/format'
 import CustomDate from '~/untils/customDate'
 import authorizedAxiosIntance from '~/untils/authorizedAxios'
 import UpdateUser from '~/components/Statistic/UpdateUser'
+import { API_ROOT } from '~/untils/contant'
 
 function Management() {
 
@@ -74,7 +75,7 @@ function Management() {
 	}, [user])
 	useEffect(() => {
 		const testAccess = async () => {
-			const res = await authorizedAxiosIntance.get(`http://localhost:3000/v1/web/${slug}/accesstoken`)
+			const res = await authorizedAxiosIntance.get(`${API_ROOT}/v1/web/${slug}/accesstoken`)
 
 			setUser(res.data)
 		}

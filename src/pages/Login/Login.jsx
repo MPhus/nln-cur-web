@@ -4,11 +4,12 @@ import { useForm } from 'react-hook-form'
 import { ReactComponent as LogoIconBlack } from '~/assets/svgIcon/curlogob_black.svg'
 import authorizedAxiosIntance from '~/untils/authorizedAxios'
 import { useNavigate } from 'react-router-dom'
+import { API_ROOT } from '~/untils/contant'
 function Login() {
 	const { register, handleSubmit, formState: { errors } } = useForm()
 	const navigate = useNavigate()
 	const submitLogIn = async (data) => {
-		const res = await authorizedAxiosIntance.post('http://localhost:3000/v1/web/tiemcur/users/login', data)
+		const res = await authorizedAxiosIntance.post(`${API_ROOT}/v1/web/tiemcur/users/login`, data)
 		const userInfo = {
 			id: res.data.id,
 			email: res.data.email,
