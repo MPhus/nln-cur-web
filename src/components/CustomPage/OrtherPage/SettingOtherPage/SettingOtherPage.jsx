@@ -15,6 +15,7 @@ import DragHandleIcon from '@mui/icons-material/DragHandle'
 import Tooltip from '@mui/material/Tooltip'
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
 
+import CloseIcon from '@mui/icons-material/Close'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
@@ -22,13 +23,14 @@ import { CSS } from '@dnd-kit/utilities'
 import { toast } from 'react-toastify'
 import About from '~/components/AboutComponent/About'
 import Intro from '~/components/Intro/Intro'
-import { FormControlLabel } from '@mui/material'
+import { DialogActions, FormControlLabel } from '@mui/material'
 
 
 const SettingOtherPage = memo(({ data, deleteNews, updateNews }) => {
 	const SLUG = 'tiemcur'
 	const [news, setNews] = useState({ ...data })
 	const [id, setId] = useState({ webId: data.webId, pageId: data.pageId })
+	const [testtt, setTesttt] = useState(false)
 	const {
 		attributes,
 		listeners,
@@ -117,13 +119,53 @@ const SettingOtherPage = memo(({ data, deleteNews, updateNews }) => {
 		handleCloseSettingAbout()
 	}
 	const handleDeletenews = () => {
+		setTesttt(news._id)
+		handleCloseSettingAbout()
+	}
+	const handleDeletenews2 = () => {
 		deleteNews(news._id)
 	}
 	return (
 		<Box
 			ref={setNodeRef} style={DndStyle} {...attributes}
-
 			sx={{ position: 'relative', mt: '20px' }} >
+			<Dialog
+				open={testtt}
+				onClose={() => setTesttt(false)}
+				sx={{ '& .MuiPaper-root': { minWidth: '800px', maxWidth: '800px' } }}
+			>
+				<DialogTitle sx={{ backgroundColor: 'error.main', color: '#fff' }}>
+					Xác nhận xóa bài viết
+					<Tooltip title="Đóng ">
+						<CloseIcon onClick={() => setTesttt(false)} sx={{ position: 'absolute', top: '8px', right: '8px', cursor: 'pointer' }} />
+					</Tooltip>
+				</DialogTitle>
+				<DialogContent sx={{
+					mt: '20px',
+					padding: ' 8px 20px',
+				}}>
+					Bài viết này sẽ vĩnh viễn bị xóa khỏi hệ thống của bạn, bạn có chắc chắn muốn xóa
+				</DialogContent>
+				<DialogActions>
+					<Button
+						variant="outlined"
+						onClick={() => { handleDeletenews2(testtt) }}
+						sx={{
+							fontSize: '16px',
+							color: 'red',
+							border: '1px solid red',
+							'&:hover': {
+								border: '1px solid red',
+								color: 'red',
+								opacity: 0.9
+							}
+						}}
+						startIcon={<DeleteForeverIcon />}
+					>
+						Xóa
+					</Button>
+				</DialogActions>
+			</Dialog>
 			<Tooltip
 				title="Kéo để di chuyển"
 				{...listeners}

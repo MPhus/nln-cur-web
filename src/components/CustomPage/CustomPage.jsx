@@ -28,7 +28,7 @@ import { mapOrder, sortMinToMax } from '~/untils/format'
 
 import SettingSlide from '~/components/CustomPage/HomePage/SettingSlide/SettingSlide'
 import CustomOrtherPage from '~/components/CustomPage/OrtherPage/CustomOrtherPage'
-import AddNewsOnOtherPage from './OrtherPage/AddNewsOnOtherPage/AddNewsOnOtherPage'
+import { toast } from 'react-toastify'
 
 const CustomPage = memo(({ type }) => {
 	const SLUG = 'tiemcur'
@@ -48,7 +48,7 @@ const CustomPage = memo(({ type }) => {
 				fetchStorePage_API(SLUG, 'bottom').then(data => setStoreBottom(data?.bottomSlide))
 
 				break;
-			case 'Trang Củ đi lạc':
+			case 'Trang Blog':
 				fetchOtherPage_API(SLUG).then(data => {
 					setOtherPage(data)
 				})
@@ -93,6 +93,12 @@ const CustomPage = memo(({ type }) => {
 		newOtherPage.newListOderIds = newOtherPage.newListOderIds.filter(_id => _id !== newsId)
 		setOtherPage(newOtherPage)
 		deleteNewsOnOtherPage_API('tiemcur', newsId)
+			.then(data => {
+				toast.success('Bài viết đã được xóa thành công', { position: 'top-center' })
+			})
+			.catch(err => {
+				toast.error('Có lỗi đã xảy ra', { position: 'top-center' })
+			})
 	}
 
 	const updateNews = async (slug, data) => {

@@ -196,7 +196,7 @@ function CustomerListStatistic() {
 										> <span> Phương thức thanh toán: </span>
 											{data.type === 'online' ? 'Mua hàng Online' : 'Mua hàng tại cửa hàng'}
 											{'  -  '}
-											{data.payMethod === 'cash' ? 'Thanh toán bằng tiền mặt' : 'Thanh toán bằng huyển khoản'}
+											{data.payMethod === 'cash' ? 'Thanh toán bằng tiền mặt' : 'Thanh toán bằng chuyển khoản'}
 
 										</Typography>
 										<Box sx={{ m: '12px 0' }}>

@@ -4,12 +4,14 @@ import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { veriryOderToken_API, orderStatusZaloPay_API } from '~/apis/index'
 import { removeAllItem } from '~/redux/cart'
 import { useDispatch } from 'react-redux'
+import { toast } from 'react-toastify';
 function VerifyOrder() {
 	const dispatch = useDispatch()
 	const { token } = useParams()
 	const [test, setTest] = useState({ mess: '' })
 	const natigate = useNavigate()
 	let [searchParams, setSearchParams] = useSearchParams();
+
 
 	useEffect(() => {
 		if (token === 'zaloPaySuccess') {
@@ -18,14 +20,16 @@ function VerifyOrder() {
 				.then((data) => {
 					if (data.return_code === 1) {
 						dispatch(removeAllItem())
+						toast.success('Đơn hàng được đặt thành công', { position: 'top-center' })
 						setTimeout(() => {
 							natigate('/')
-						}, 5000)
+						}, 500)
 						setTest({ mess: 'Is valid', dataSave: undefined })
 					} else {
+						toast.error('Có lỗi trong quá trình đặt hàng', { position: 'top-center' })
 						setTimeout(() => {
 							natigate('/cart')
-						}, 5000)
+						}, 500)
 						setTest({ mess: 'Looix', dataSave: undefined })
 					}
 				})
@@ -33,15 +37,17 @@ function VerifyOrder() {
 			veriryOderToken_API(token)
 				.then((res) => {
 					dispatch(removeAllItem())
+					toast.success('Đơn hàng được đặt thành công', { position: 'top-center' })
 					setTimeout(() => {
 						natigate('/')
-					}, 5000)
+					}, 500)
 					setTest({ mess: res.message, dataSave: res.data })
 				})
 				.catch((err) => {
+					toast.error('Có lỗi trong quá trình đặt hàng', { position: 'top-center' })
 					setTimeout(() => {
 						natigate('/cart')
-					}, 5000)
+					}, 500)
 					setTest({ mess: err.message, dataSave: undefined })
 				})
 		}

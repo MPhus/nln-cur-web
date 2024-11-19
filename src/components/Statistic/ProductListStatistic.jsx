@@ -24,10 +24,11 @@ import CloseRoundedIcon from '@mui/icons-material/CloseRounded'
 
 // import { getProduct } from '~/apis/mock'
 import { addNewProduct_API, DeleteProduct_API, fetchProduct_API, getProductById_API, updateDetailProduct_API } from '~/apis/index'
-import { Alert } from '@mui/material'
+import { Alert, CircularProgress, DialogActions } from '@mui/material'
 import { formatDate } from '~/untils/format'
 import UpdateProduct from './UpdateProduct'
 
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
 function ProductListStatistic() {
 	const [productList, setProductList] = useState(undefined)
 	const [closeIcon, setCloseIcon] = useState('')
@@ -36,11 +37,14 @@ function ProductListStatistic() {
 	const [numberOfPage, setNumberOfPage] = useState(1)
 	const [openAddProduct, setOpenAddProduct] = useState(false)
 	const [openDetail, setOpenDetail] = useState(false)
+	const [loading, setLoading] = useState(false)
 	const [productDetail, setProductDetail] = useState({})
 	const [imgProductPreview, setImgProductPreview] = useState(undefined)
 	const inputImgRef = useRef(null)
 	const totalPage = productList?.totalPage
 	const totalProduct = productList?.totalProduct
+
+	const [testtt, setTesttt] = useState(false)
 	const [newProduct, setNewProduct] = useState({
 		name: '',
 		description: '',
@@ -96,8 +100,16 @@ function ProductListStatistic() {
 		formData.append('type', data.type)
 		formData.append('size', data.size)
 
-		toast('Đang thêm sản phẩm....', { position: 'top-center' })
-		addNewProduct_API('tiemcur', formData).then((item) => setTest(item))
+		addNewProduct_API('tiemcur', formData)
+			.then((item) => {
+				toast.success('Đã thêm sản phẩm mới', { position: 'top-center' })
+				setTest(item)
+			})
+			.catch(err => {
+				toast.error('Có lỗi đã xảy ra', { position: 'top-center' })
+			})
+			.finally(a => setLoading(false))
+		setLoading(true)
 
 		handleCloseAddProduct()
 	}
@@ -143,11 +155,62 @@ function ProductListStatistic() {
 		updateDetailProduct_API('tiemcur', data).then(pro => setTest(pro))
 	}
 	const DeleteProduct = (id) => {
-		DeleteProduct_API('tiemcur', id).then(pro => setTest(pro))
+		setOpenDetail(false)
+		setTesttt(id)
+	}
+	const DeleteProduct2 = (id) => {
+		DeleteProduct_API('tiemcur', id)
+			.then(pro => {
+				toast('Đã xóa sản phẩm', { position: 'top-center' })
+				setTest(pro)
+				setTesttt(undefined)
+			})
 	}
 
 	return (
 		<Box sx={{ maxWidth: '1200px', minWidth: '1200px', m: '40px auto', }}>
+			{loading &&
+				<Box sx={{ backgroundColor: 'rgba(0,0,0,0.3)', display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'absolute', top: '0', left: '0', right: '0', bottom: '0', zIndex: '99' }}>
+					<CircularProgress sx={{ color: 'secondary.main' }} size={80} />
+				</Box>
+			}
+			<Dialog
+				open={testtt}
+				onClose={() => setTesttt(false)}
+				sx={{ '& .MuiPaper-root': { minWidth: '800px', maxWidth: '800px' } }}
+			>
+				<DialogTitle sx={{ backgroundColor: 'error.main', color: '#fff' }}>
+					Xác nhận xóa sản phẩm
+					<Tooltip title="Đóng ">
+						<CloseIcon onClick={() => setTesttt(false)} sx={{ position: 'absolute', top: '8px', right: '8px', cursor: 'pointer' }} />
+					</Tooltip>
+				</DialogTitle>
+				<DialogContent sx={{
+					mt: '20px',
+					padding: ' 8px 20px',
+				}}>
+					Sản phẩm này sẽ vĩnh viễn bị xóa khỏi hệ thống của bạn, bạn có chắc chắn muốn xóa
+				</DialogContent>
+				<DialogActions>
+					<Button
+						variant="outlined"
+						onClick={() => { DeleteProduct2(testtt) }}
+						sx={{
+							fontSize: '16px',
+							color: 'red',
+							border: '1px solid red',
+							'&:hover': {
+								border: '1px solid red',
+								color: 'red',
+								opacity: 0.9
+							}
+						}}
+						startIcon={<DeleteForeverIcon />}
+					>
+						Xóa
+					</Button>
+				</DialogActions>
+			</Dialog>
 			<Box>
 				<Box sx={{
 					display: 'flex',
@@ -591,9 +654,13 @@ function ProductListStatistic() {
 														}
 													}}
 												>
+													<MenuItem value={''}>None</MenuItem>
 													<MenuItem value={'black'}>Đen</MenuItem>
 													<MenuItem value={'white'}>Trắng</MenuItem>
 													<MenuItem value={'red'}>Đỏ</MenuItem>
+													<MenuItem value={'purple'}>Tím</MenuItem>
+													<MenuItem value={'green'}>Xanh lục</MenuItem>
+													<MenuItem value={'blue'}>Xanh lam</MenuItem>
 													<MenuItem value={'organe'}>Cam</MenuItem>
 													<MenuItem value={'yellow'}>Vàng</MenuItem>
 													<MenuItem value={'camo'}>Camo</MenuItem>
@@ -783,9 +850,9 @@ function ProductListStatistic() {
 							minWidth: '100px',
 						}
 					}}>
-						<Button variant='text' sx={{ flex: '2' }} endIcon={null}>Mã SP</Button>
 						<Button variant='text' sx={{ flex: '2' }} endIcon={null}>Sản phẩm</Button>
 						<Button variant='text' sx={{ flex: '1', maxWidth: '100px' }} endIcon={null}>Thương hiệu</Button>
+						<Button variant='text' sx={{ flex: '1', maxWidth: '100px' }} endIcon={null}>Số lượng</Button>
 						<Button variant='text' sx={{ flex: '1', maxWidth: '100px' }} endIcon={null}>Giá</Button>
 						<Button variant='text' sx={{ flex: '1', maxWidth: '100px' }} endIcon={null}>Màu</Button>
 						<Button variant='text' sx={{ flex: '1', maxWidth: '100px' }} endIcon={null}>Loại vải</Button>
@@ -826,10 +893,6 @@ function ProductListStatistic() {
 										display: product.quantity <= 0 ? 'block' : 'none',
 
 									}}>Hết hàng</Box>
-									<Box sx={{ flex: '2', textTransform: 'uppercase', pl: '20px' }}>
-										<Typography >{product.barcode}</Typography>
-
-									</Box>
 									<Box sx={{ display: 'flex', flex: '2', padding: '0 12px', gap: '16px', alignItems: 'center' }}>
 										<Avatar src={product.thumb} />
 										<Typography variant='body2' sx={{ textTransform: 'uppercase', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -837,6 +900,7 @@ function ProductListStatistic() {
 										</Typography>
 									</Box>
 									<Typography sx={{ flex: '1' }}>{product.supplier}</Typography>
+									<Typography sx={{ flex: '1' }}>{product.quantity}</Typography>
 									<Typography sx={{ flex: '1' }}>{`${(new Intl.NumberFormat().format(product.price * 1000))} VND`}</Typography>
 									<Typography sx={{ flex: '1' }}>{product.color}</Typography>
 									<Typography sx={{ flex: '1' }}>{product.material}</Typography>

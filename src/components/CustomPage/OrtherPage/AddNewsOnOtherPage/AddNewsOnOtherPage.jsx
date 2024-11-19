@@ -6,7 +6,7 @@ import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import Dialog from '@mui/material/Dialog'
-import AddIcon from '@mui/icons-material/Add';
+import AddIcon from '@mui/icons-material/Add'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
 import DriveFolderUploadIcon from '@mui/icons-material/DriveFolderUpload'
@@ -17,7 +17,7 @@ import Tooltip from '@mui/material/Tooltip'
 import { toast } from 'react-toastify'
 import About from '~/components/AboutComponent/About'
 import Intro from '~/components/Intro/Intro'
-import { FormControlLabel } from '@mui/material'
+import { Alert, CircularProgress, FormControlLabel } from '@mui/material'
 
 const AddNewsOnOtherPage = memo(({ addNews }) => {
 	const SLUG = 'tiemcur'
@@ -41,6 +41,9 @@ const AddNewsOnOtherPage = memo(({ addNews }) => {
 	const [openSettingAbout, setOpenSettingAbout] = useState(false)
 
 	const [imgPreview, setImgPreview] = useState(undefined)
+
+	const [loading, setLoading] = useState(false)
+	console.log('loading: ', loading)
 	const inputImgRef = useRef(null)
 
 	const handleCloseSettingAbout = () => {
@@ -87,24 +90,25 @@ const AddNewsOnOtherPage = memo(({ addNews }) => {
 		formData.append('content', data.content)
 		formData.append('isDark', data.isDark)
 		formData.append('isCenter', data.isCenter)
+		setLoading(true)
 
 		addNews(SLUG, formData)
-
-		toast('Đang thêm...', { position: 'top-center' })
-		// setNews({
-		// 	...news,
-		// 	title: data.title,
-		// 	content: data.content,
-		// 	isDark: data.isDark,
-		// 	isCenter: data.isCenter,
-		// 	thumb: news.thumb
-		// })
-		// toast('Đã chỉnh sửa')
+			.then(data => {
+				toast.success('Bài đăng đã được thêm', { position: 'top-center' })
+			})
+			.catch(error => {
+				toast.error('Có lỗi đã xảy ra', { position: 'top-center' })
+			})
+			.finally(a => setLoading(false))
 		handleCloseSettingAbout()
-		// const imgLink = await uploadImg_API(formData)
 	}
+
 	return (
 		<Box sx={{ position: 'relative', mt: '20px', backgroundColor: 'primary.dark', height: '64px' }} >
+			{loading &&
+				<Box sx={{ backgroundColor: 'rgba(0,0,0,1)', zIndex: '99', display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'absolute', top: '0', left: '0', right: '0', bottom: '0', zIndex: '99' }}>
+					<CircularProgress sx={{ color: 'secondary.main' }} size={80} />
+				</Box>}
 			<Box sx={{
 				position: 'absolute',
 				top: '0', bottom: '0', left: '0', right: '0',
@@ -148,7 +152,9 @@ const AddNewsOnOtherPage = memo(({ addNews }) => {
 				</DialogTitle>
 				<DialogContent>
 					<form onSubmit={handleSubmit(submitSettingSlide)}>
-						<Box >
+						<Box sx={{
+							overflowX: 'hidden',
+						}} >
 							<Box onClick={handleUploadImg} sx={{
 								cursor: 'pointer',
 								'& img': {
@@ -190,11 +196,23 @@ const AddNewsOnOtherPage = memo(({ addNews }) => {
 									variant="outlined"
 									sx={{ display: 'none' }}
 									{...register('thumb', {
+										required: 'Bạn hãy chọn hình ảnh.',
 										onChange: (e) => {
 											setImgPreview(URL.createObjectURL(e.target.files[0]))
 										}
 									})}
 								/>
+								{errors.thumb && (
+									<Alert
+										severity='error'
+										sx={{
+											marginTop: '0.7em',
+											'.MuiAlert-message': { overflow: 'hidden' },
+										}}
+									>
+										{errors.thumb.message}
+									</Alert>
+								)}
 							</Box>
 
 							<TextField
@@ -203,7 +221,9 @@ const AddNewsOnOtherPage = memo(({ addNews }) => {
 								label="Tiêu đề"
 								type="text"
 								variant="outlined"
-								{...register('title')}
+								{...register('title', {
+									required: 'Bạn hãy nhập tiêu đề.'
+								})}
 								sx={{
 									mt: '32px',
 									'& .MuiSvgIcon-root': {
@@ -224,6 +244,17 @@ const AddNewsOnOtherPage = memo(({ addNews }) => {
 									}
 								}}
 							/>
+							{errors.title && (
+								<Alert
+									severity='error'
+									sx={{
+										marginTop: '0.7em',
+										'.MuiAlert-message': { overflow: 'hidden' },
+									}}
+								>
+									{errors.title.message}
+								</Alert>
+							)}
 
 							<TextField
 								fullWidth
@@ -233,7 +264,9 @@ const AddNewsOnOtherPage = memo(({ addNews }) => {
 								multiline
 								minRows={5}
 								variant="outlined"
-								{...register('content')}
+								{...register('content', {
+									required: 'Bạn hãy nhập nội dung.',
+								})}
 								sx={{
 									mt: '32px',
 									'& .MuiSvgIcon-root': {
@@ -254,6 +287,17 @@ const AddNewsOnOtherPage = memo(({ addNews }) => {
 									}
 								}}
 							/>
+							{errors.content && (
+								<Alert
+									severity='error'
+									sx={{
+										marginTop: '0.7em',
+										'.MuiAlert-message': { overflow: 'hidden' },
+									}}
+								>
+									{errors.content.message}
+								</Alert>
+							)}
 
 							<FormControlLabel
 								control={<Switch checked={news.isDark} color='secondary'
@@ -305,7 +349,7 @@ const AddNewsOnOtherPage = memo(({ addNews }) => {
 										}
 									}}
 								>
-									Lưu
+									Thêm
 								</Button>
 							</Box>
 

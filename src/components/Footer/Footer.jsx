@@ -1,5 +1,5 @@
 import Box from '@mui/material/Box'
-import { ReactComponent as LogoIcon2 } from '~/assets/svgIcon/curlogow.svg'
+import { ReactComponent as LogoIcon2 } from '~/assets/svgIcon/Curlogow01.svg'
 import { ReactComponent as FaceBookIconSVG } from '~/assets/svgIcon/facebook-circle.svg'
 import { ReactComponent as InstagramIconSVG } from '~/assets/svgIcon/instagram-logo-fill.svg'
 import { ReactComponent as TiktokIconSVG } from '~/assets/svgIcon/tiktok.svg'

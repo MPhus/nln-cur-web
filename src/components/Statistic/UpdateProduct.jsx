@@ -82,7 +82,6 @@ function UpdateProduct({ productDetail, closeTest, updateDetailProduct, DeletePr
 		}
 	}, [imgProductPreview])
 	const handleDeleteProduct = () => {
-		toast('Đã xóa sản phẩm', { position: 'top-center' })
 		DeleteProduct(productDetail._id)
 		handleCloseAddProduct()
 	}
@@ -500,9 +499,13 @@ function UpdateProduct({ productDetail, closeTest, updateDetailProduct, DeletePr
 									}
 								}}
 							>
+								<MenuItem value={''}>None</MenuItem>
 								<MenuItem value={'black'}>Đen</MenuItem>
 								<MenuItem value={'white'}>Trắng</MenuItem>
 								<MenuItem value={'red'}>Đỏ</MenuItem>
+								<MenuItem value={'purple'}>Tím</MenuItem>
+								<MenuItem value={'green'}>Xanh lục</MenuItem>
+								<MenuItem value={'blue'}>Xanh lam</MenuItem>
 								<MenuItem value={'organe'}>Cam</MenuItem>
 								<MenuItem value={'yellow'}>Vàng</MenuItem>
 								<MenuItem value={'camo'}>Camo</MenuItem>

@@ -14,8 +14,8 @@ import MenuIcon from '@mui/icons-material/Menu'
 import CloseIcon from '@mui/icons-material/Close'
 import Badge from '@mui/material/Badge'
 
-import { ReactComponent as LogoIcon } from '~/assets/svgIcon/curlogob.svg'
-import { ReactComponent as LogoIconBlack } from '~/assets/svgIcon/curlogob_black.svg'
+import { ReactComponent as LogoIcon } from '~/assets/svgIcon/cuxlogob.svg'
+import { ReactComponent as LogoIconBlack } from '~/assets/svgIcon/cuxlogob_black.svg'
 import { ReactComponent as ShirtIcon } from '~/assets/svgIcon/tshirt.svg'
 import { ReactComponent as PantIcon } from '~/assets/svgIcon/pant.svg'
 

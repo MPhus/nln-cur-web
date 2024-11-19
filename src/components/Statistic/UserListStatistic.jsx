@@ -15,6 +15,7 @@ import DialogTitle from '@mui/material/DialogTitle'
 import MenuItem from '@mui/material/MenuItem'
 import Tooltip from '@mui/material/Tooltip'
 
+import CircularProgress from '@mui/material/CircularProgress'
 import CloseIcon from '@mui/icons-material/Close'
 import AddToPhotosIcon from '@mui/icons-material/AddToPhotos'
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
@@ -25,10 +26,9 @@ import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
 
 // import { getUser } from '~/apis/mock'
 import { addNewUser_API, DeleteUser_API, fetchUser_API, getUserById_API, updateDetailUser_API } from '~/apis/index'
-import { Alert } from '@mui/material'
+import { Alert, DialogActions } from '@mui/material'
 import { formatDate } from '~/untils/format'
 import UpdateUser from './UpdateUser'
-
 function UserListStatistic() {
 	const currentUser = JSON.parse(localStorage.getItem('userInfo'))
 	const [userList, setUserList] = useState(undefined)
@@ -39,8 +39,10 @@ function UserListStatistic() {
 	const [numberOfPage, setNumberOfPage] = useState(1)
 	const [openDetail, setOpenDetail] = useState(false)
 	const [userDetail, setUserDetail] = useState({})
+	const [loading, setLoading] = useState(false)
 	const [isAdminFilter, setIsAdminFilter] = useState(false)
 	const [openAddUser, setOpenAddUser] = useState(false)
+	const [testtt, setTesttt] = useState(false)
 	const totalPage = userList?.totalPage
 	const totalUser = userList?.totalUser
 
@@ -91,19 +93,21 @@ function UserListStatistic() {
 
 	}
 
-	const submitSettingAddUser = async (data) => {
+	const submitSettingAddUser = (data) => {
 		const { email, name, isAdmin, password, phone } = data
 		const dataSubmit = { email, name, isAdmin, password, phone }
-		try {
-			const newssss = await addNewUser_API('tiemcur', dataSubmit)
-			toast('Đang thêm người dùng....', { position: 'top-center' })
-			setTest(newssss)
 
-			handleCloseAddUser()
-		} catch (error) {
-			toast.error(error?.response.data.message, { position: 'top-center' })
-		}
-
+		addNewUser_API('tiemcur', dataSubmit)
+			.then(data => {
+				toast.success('Người dùng đã được thêm', { position: 'top-center' })
+				setTest(data)
+				handleCloseAddUser()
+			})
+			.catch(error => {
+				toast.error(error?.response.data.message, { position: 'top-center' })
+			})
+			.finally(a => setLoading(false))
+		setLoading(true)
 	}
 
 	const handleCloseAddUser = () => {
@@ -119,17 +123,75 @@ function UserListStatistic() {
 		}, 5000);
 	}
 
-	const updateDetailUser = (data) => {
-		console.log('data: ', data)
-
-		updateDetailUser_API('tiemcur', data).then(pro => setTest(pro))
-	}
-	const DeleteUser = (id) => {
-		DeleteUser_API('tiemcur', id).then(pro => setTest(pro))
+	const updateDetailUser = async (data) => {
+		const ttestt = await updateDetailUser_API('tiemcur', data)
+		setTest(ttestt)
 	}
 
+	const DeleteUser = (user) => {
+		setTesttt(user)
+	}
+	const DeleteUser2 = (user) => {
+		if (user?.isOwner) {
+			toast.error('Bạn không có đủ quyền hạn để xóa người dùng này', { position: 'top-center' })
+			return
+		} else {
+			DeleteUser_API('tiemcur', user._id)
+				.then(data => {
+					setTest(data)
+					toast.success('Người dùng đã được xóa', { position: 'top-center' })
+					setTesttt(undefined)
+				})
+				.catch(err => {
+					toast.error('Có lỗi đã xảy ra', { position: 'top-center' })
+				})
+				.finally(a => setLoading(false))
+			setLoading(true)
+		}
+	}
 	return (
 		<Box sx={{ maxWidth: '1200px', minWidth: '1200px', m: '40px auto', }}>
+			<Dialog
+				open={testtt}
+				onClose={() => setTesttt(false)}
+				sx={{ '& .MuiPaper-root': { minWidth: '800px', maxWidth: '800px' } }}
+			>
+				<DialogTitle sx={{ backgroundColor: 'error.main', color: '#fff' }}>
+					{`Xác nhận xóa người dùng ${testtt?.email}`}
+					<Tooltip title="Đóng ">
+						<CloseIcon onClick={() => setTesttt(false)} sx={{ position: 'absolute', top: '8px', right: '8px', cursor: 'pointer' }} />
+					</Tooltip>
+				</DialogTitle>
+				<DialogContent sx={{
+					mt: '20px',
+					padding: ' 8px 20px',
+				}}>
+					{`Người dùng ${testtt?.email} sẽ vĩnh viễn bị xóa khỏi hệ thống của bạn, bạn có chắc chắn muốn xóa`}
+				</DialogContent>
+				<DialogActions>
+					<Button
+						variant="outlined"
+						onClick={() => { DeleteUser2(testtt) }}
+						sx={{
+							fontSize: '16px',
+							color: 'red',
+							border: '1px solid red',
+							'&:hover': {
+								border: '1px solid red',
+								color: 'red',
+								opacity: 0.9
+							}
+						}}
+						startIcon={<DeleteForeverIcon />}
+					>
+						Xóa
+					</Button>
+				</DialogActions>
+			</Dialog>
+			{loading &&
+				<Box sx={{ backgroundColor: 'rgba(0,0,0,0.3)', display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'absolute', top: '0', left: '0', right: '0', bottom: '0', zIndex: '99' }}>
+					<CircularProgress sx={{ color: 'secondary.main' }} size={80} />
+				</Box>}
 			<Box>
 				<Box sx={{
 					display: 'flex',
@@ -575,46 +637,53 @@ function UserListStatistic() {
 									<Typography sx={{ flex: '1' }}>{user.email}</Typography>
 									<Typography sx={{ flex: '1' }}>{user.phone}</Typography>
 									{userView?._id !== user._id &&
-										<TextField
-											select
-											size='small'
-											value={user.isAdmin}
-											onChange={(e) => updateDetailUser({ isAdmin: e.target.value, _id: user._id, webId: user.webId })}
-											defaultValue={user.isAdmin}
-											sx={{
-												minWidth: '200px',
-												maxWidth: '200px',
-												'& .MuiSvgIcon-root': {
-													color: 'primary.dark',
-													pt: '3px'
-												},
-												'& .MuiFormLabel-root': {
-													right: 'unset !important',
-													left: '0',
-													top: '-4px',
-													backgroundColor: '#fff'
-												},
-												'&  .MuiOutlinedInput-root ': {
-													fontSize: '16px',
-													' & .MuiOutlinedInput-notchedOutline': {
-														border: '1px solid #000 !important'
-													}
-												}
-											}}
-										>
-											<MenuItem value={false}>Nhân viên</MenuItem>
-											<MenuItem value={true}>Quản lý</MenuItem>
-										</TextField>
+										<Box>
+											{user?.isOwner &&
+												<Typography sx={{ flex: '1' }}>{user.isOwner ? 'Chủ sở hữu' : (user.isAdmin ? 'Quản lý' : 'Nhân viên')}</Typography>
+											}
+											{!user?.isOwner &&
+												<TextField
+													select
+													size='small'
+													value={user.isAdmin}
+													onChange={(e) => updateDetailUser({ ...user, isAdmin: e.target.value, oldPassword: 'changeRole' })}
+													defaultValue={user.isAdmin}
+													sx={{
+														minWidth: '200px',
+														maxWidth: '200px',
+														'& .MuiSvgIcon-root': {
+															color: 'primary.dark',
+															pt: '3px'
+														},
+														'& .MuiFormLabel-root': {
+															right: 'unset !important',
+															left: '0',
+															top: '-4px',
+															backgroundColor: '#fff'
+														},
+														'&  .MuiOutlinedInput-root ': {
+															fontSize: '16px',
+															' & .MuiOutlinedInput-notchedOutline': {
+																border: '1px solid #000 !important'
+															}
+														}
+													}}
+												>
+													<MenuItem value={false}>Nhân viên</MenuItem>
+													<MenuItem value={true}>Quản lý</MenuItem>
+												</TextField>
+											}
+										</Box>
 									}
 									{userView?._id === user._id &&
-										<Typography sx={{ flex: '1' }}>{user.isAdmin ? 'Quản lý' : 'Nhân viên'}</Typography>
+										<Typography sx={{ flex: '1' }}>{user.isOwner ? 'Chủ sở hữu' : (user.isAdmin ? 'Quản lý' : 'Nhân viên')}</Typography>
 									}
 
 									{userView?._id !== user._id &&
 										<Button
 											sx={{ flex: '1' }}
 											variant='text'
-											onClick={() => { DeleteUser(user._id) }} >
+											onClick={() => { DeleteUser(user) }} >
 											<DeleteForeverIcon sx={{ color: '#888' }} />
 										</Button>
 									}
@@ -633,7 +702,7 @@ function UserListStatistic() {
 										sx={{ '& .MuiPaper-root': { minWidth: '1200px', maxWidth: '1200px' } }}
 									>
 										<DialogTitle sx={{ backgroundColor: 'secondary.main', color: '#fff' }}>
-											Chỉnh sửa thông tin sản phẩm
+											Chỉnh sửa thông tin cá nhân
 											<Tooltip title="Đóng ">
 												<CloseIcon onClick={handleCloseViewDetail} sx={{ position: 'absolute', top: '8px', right: '8px', cursor: 'pointer' }} />
 											</Tooltip>
@@ -641,7 +710,6 @@ function UserListStatistic() {
 										<DialogContent >
 											<UpdateUser userDetail={userDetail} closeTest={handleCloseViewDetail} updateDetailUser={updateDetailUser} DeleteUser={DeleteUser} />
 										</DialogContent>
-
 									</Dialog>
 								</Box>
 							)

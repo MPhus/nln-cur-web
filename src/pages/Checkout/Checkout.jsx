@@ -32,6 +32,7 @@ import { ReactComponent as CashIconBlack } from '~/assets/svgIcon/money.svg'
 import ZaloPay from '~/assets/svgIcon/ZaloPay_Logo.png'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
+import { CircularProgress } from '@mui/material'
 
 function Checkout() {
 	const TRANPORT_FEE = 35
@@ -42,6 +43,7 @@ function Checkout() {
 	const [districtName, setDistrictName] = useState('')
 	const [wardName, setWardName] = useState('')
 	const [productList, setProductList] = useState([])
+	const [loading, setLoading] = useState(false)
 	const natigate = useNavigate()
 	const { register, handleSubmit, formState: { errors } } = useForm()
 
@@ -86,6 +88,8 @@ function Checkout() {
 					console.log('t: ', t)
 					setOpenCheckmail({ message: t.message, isOpen: true, isThen: false })
 				})
+				.finally(a => setLoading(false))
+			setLoading(true)
 		}
 		else if (info.payMethod === 'zaloPay') {
 			// createNewCustomerOrderWithZaloPay_API('tiemcur', { infor: data, productList, totalPrice, tranportFee: TRANPORT_FEE })
@@ -143,7 +147,11 @@ function Checkout() {
 	}
 	return (
 		<Box>
-
+			{loading &&
+				<Box sx={{ backgroundColor: 'rgba(0,0,0,0.3)', display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'absolute', top: '0', left: '0', right: '0', bottom: '0', zIndex: '99' }}>
+					<CircularProgress sx={{ color: 'secondary.main' }} size={80} />
+				</Box>
+			}
 			<form onSubmit={handleSubmit(submitLogIn)}>
 				<Box sx={{
 					width: {

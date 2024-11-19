@@ -38,12 +38,17 @@ function UpdateUser({ userDetail, closeTest, updateDetailUser, DeleteUser }) {
 	const password = useRef({})
 	password.current = watch('password', '')
 	const submitSettingSlide = async (data) => {
-		const { email, name, isAdmin, phone, password } = data
-		const dataSubmit = { email, name, isAdmin, phone, webId: newUser.webId, _id: newUser._id, password }
-		toast('Đã cập nhập người dùng', { position: 'top-center' })
-		updateDetailUser(dataSubmit)
+		const { email, name, isAdmin, phone, password, oldPassword } = data
+		const dataSubmit = { email, name, isAdmin, phone, webId: newUser.webId, _id: newUser._id, password, oldPassword }
 
-		handleCloseAddUser()
+		updateDetailUser(dataSubmit)
+			.then(data => {
+				toast.success('Cập nhật thông tin thành công', { position: 'top-center' })
+				handleCloseAddUser()
+			})
+			.catch(err => {
+				toast.error(`${err.response?.data?.message}`, { position: 'top-center' })
+			})
 	}
 
 	const handleCloseAddUser = () => {
@@ -55,7 +60,7 @@ function UpdateUser({ userDetail, closeTest, updateDetailUser, DeleteUser }) {
 	}
 
 	const handleDeleteUser = () => {
-		toast('Đã xóa sản phẩm', { position: 'top-center' })
+		toast('Đã xóa người dùng', { position: 'top-center' })
 		DeleteUser(userDetail._id)
 		handleCloseAddUser()
 	}
@@ -64,15 +69,50 @@ function UpdateUser({ userDetail, closeTest, updateDetailUser, DeleteUser }) {
 			<form onSubmit={handleSubmit(submitSettingSlide)} encType="multipart/form-data">
 				<Box  >
 					<Box sx={{ padding: '0 20px' }}>
+						{!newUser?.isOwner &&
+							<TextField
+								select
+								label="Vai trò"
+								size='small'
+								defaultValue={newUser.isAdmin}
+								{...register('isAdmin')}
+								sx={{
+									minWidth: '160px',
+									maxWidth: '160px',
+									mt: '32px',
+									'& .MuiSvgIcon-root': {
+										color: 'primary.dark',
+										pt: '3px'
+									},
+									'& .MuiFormLabel-root': {
+										right: 'unset !important',
+										left: '0',
+										top: '-4px',
+										backgroundColor: '#fff'
+									},
+									'&  .MuiOutlinedInput-root ': {
+										fontSize: '16px',
+										' & .MuiOutlinedInput-notchedOutline': {
+											border: '1px solid #000 !important'
+										}
+									}
+								}}
+							>
+								<MenuItem value={false}>Nhân viên</MenuItem>
+								<MenuItem value={true}>Quản lý</MenuItem>
+							</TextField>
+						}
+
 						<TextField
-							select
-							label="Vai trò"
-							size='small'
-							defaultValue={newUser.isAdmin}
-							{...register('isAdmin')}
+							disabled
+							label='Email'
+							fullWidth
+							type="text"
+							variant="outlined"
+							{...register('email', {
+								required: 'Vui lòng nhập trường này.'
+							})}
 							sx={{
-								minWidth: '160px',
-								maxWidth: '160px',
 								mt: '32px',
 								'& .MuiSvgIcon-root': {
 									color: 'primary.dark',
@@ -81,7 +121,8 @@ function UpdateUser({ userDetail, closeTest, updateDetailUser, DeleteUser }) {
 								'& .MuiFormLabel-root': {
 									right: 'unset !important',
 									left: '0',
-									top: '-4px',
+									fontSize: '16px',
+									top: '-2px',
 									backgroundColor: '#fff'
 								},
 								'&  .MuiOutlinedInput-root ': {
@@ -91,11 +132,12 @@ function UpdateUser({ userDetail, closeTest, updateDetailUser, DeleteUser }) {
 									}
 								}
 							}}
-						>
-							<MenuItem value={false}>Nhân viên</MenuItem>
-							<MenuItem value={true}>Quản lý</MenuItem>
-						</TextField>
-
+						/>
+						{errors.email &&
+							<Alert severity="error" sx={{ mt: '8px', py: '0', maxWidth: '100% !important', minWidth: '100% !important', '.MuiAlert-message': { overflow: 'hidden' } }}>
+								{errors.email.message}
+							</Alert>
+						}
 						<TextField
 							label='Tên người dùng'
 							fullWidth
@@ -132,13 +174,11 @@ function UpdateUser({ userDetail, closeTest, updateDetailUser, DeleteUser }) {
 						}
 
 						<TextField
-							label='Email'
+							label="Mật khẩu hiện tại"
 							fullWidth
-							type="text"
+							type="password"
+							autoComplete='off'
 							variant="outlined"
-							{...register('email', {
-								required: 'Vui lòng nhập trường này.'
-							})}
 							sx={{
 								mt: '32px',
 								'& .MuiSvgIcon-root': {
@@ -159,14 +199,22 @@ function UpdateUser({ userDetail, closeTest, updateDetailUser, DeleteUser }) {
 									}
 								}
 							}}
+							error={!!errors.password}
+							{...register('oldPassword', {
+								required: 'Vui lòng nhập mật khẩu hiện tại.',
+								minLength: {
+									value: 8,
+									message: 'Mật khẩu phải ít nhất có 8 ký tự.'
+								}
+							})}
 						/>
-						{errors.email &&
+						{errors.oldPassword &&
 							<Alert severity="error" sx={{ mt: '8px', py: '0', maxWidth: '100% !important', minWidth: '100% !important', '.MuiAlert-message': { overflow: 'hidden' } }}>
-								{errors.email.message}
+								{errors.oldPassword.message}
 							</Alert>
 						}
 						<TextField
-							label="Password"
+							label="Mật khẩu mới"
 							fullWidth
 							type="password"
 							autoComplete='off'
@@ -193,10 +241,10 @@ function UpdateUser({ userDetail, closeTest, updateDetailUser, DeleteUser }) {
 							}}
 							error={!!errors.password}
 							{...register('password', {
-								required: 'Please enter password.',
+								required: 'Vui lòng nhập mật khẩu mới.',
 								minLength: {
 									value: 8,
-									message: 'Password must have at least 8 characters.'
+									message: 'Mật khẩu phải ít nhất có 8 ký tự.'
 								}
 							})}
 						/>
@@ -207,7 +255,7 @@ function UpdateUser({ userDetail, closeTest, updateDetailUser, DeleteUser }) {
 						}
 
 						<TextField
-							label="Confirm Password"
+							label="Xác nhận mật khẩu mới"
 							fullWidth
 							autoComplete='off'
 							type="password"
@@ -235,7 +283,7 @@ function UpdateUser({ userDetail, closeTest, updateDetailUser, DeleteUser }) {
 							error={!!errors.confirmPassword}
 							{...register('confirmPassword', {
 								validate: value =>
-									value === password.current || 'The passwords do not match.'
+									value === password.current || 'Mật khẩu không trùng khớp.'
 							})}
 						/>
 						{errors.confirmPassword &&
@@ -280,26 +328,28 @@ function UpdateUser({ userDetail, closeTest, updateDetailUser, DeleteUser }) {
 						}
 					</Box>
 					<Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '20px', pt: '20px' }}>
-						<Button
-							variant="outlined"
-							onClick={() => { handleDeleteUser() }}
-							sx={{
-								mt: '20px',
-								padding: ' 8px 20px',
-								fontSize: '16px',
-								color: 'red',
 
-								border: '1px solid red',
-								'&:hover': {
-									border: '1px solid red',
+						{/* <Button
+								variant="outlined"
+								onClick={() => { handleDeleteUser() }}
+								sx={{
+									mt: '20px',
+									padding: ' 8px 20px',
+									fontSize: '16px',
 									color: 'red',
-									opacity: 0.9
-								}
-							}}
-							startIcon={<DeleteForeverIcon />}
-						>
-							Xóa
-						</Button>
+
+									border: '1px solid red',
+									'&:hover': {
+										border: '1px solid red',
+										color: 'red',
+										opacity: 0.9
+									}
+								}}
+								startIcon={<DeleteForeverIcon />}
+							>
+								Xóa
+							</Button> */}
+
 
 
 						<Button
@@ -310,7 +360,6 @@ function UpdateUser({ userDetail, closeTest, updateDetailUser, DeleteUser }) {
 								padding: ' 8px 20px',
 								fontSize: '16px',
 								color: '#000',
-
 								border: '1px solid #000',
 								'&:hover': {
 									border: '1px solid #000',
@@ -329,10 +378,10 @@ function UpdateUser({ userDetail, closeTest, updateDetailUser, DeleteUser }) {
 								mt: '20px',
 								padding: '8px 20px',
 								fontSize: '16px',
-								backgroundColor: '#000',
+								backgroundColor: 'secondary.main',
 								color: '#fff',
 								'&:hover': {
-									backgroundColor: '#000',
+									backgroundColor: 'secondary.main',
 									color: '#fff',
 									opacity: 0.9
 								}
@@ -340,8 +389,6 @@ function UpdateUser({ userDetail, closeTest, updateDetailUser, DeleteUser }) {
 						>
 							Cập nhật
 						</Button>
-
-
 					</Box>
 				</Box>
 			</form >

@@ -41,6 +41,14 @@ export const formatDate = (dateString) => {
 		return dateString.split('T')[0].split('-').reverse().join('/')
 	}
 }
+export const formatDateForTextField = (dateString) => {
+	// console.log('dateString: ', dateString)
+	if (!dateString) {
+		return dateString
+	} else {
+		return dateString.split('T')[0].split('-').join('-')
+	}
+}
 export const formatDateHaveTime = (dateString) => {
 	// console.log('dateString: ', dateString)
 	if (!dateString) {
@@ -60,20 +68,20 @@ export const formatTime = (dateString) => {
 	}
 }
 
-export const formatToChart = (data) => {
+export const formatToChart = (data, month) => {
 
-	const getDate2 = (createAt) => new Date(createAt).getDate();
+	const getDate2 = (createAt) => new Date(formatDateForTextField(createAt)).getDate();
 
 	// Khởi tạo một đối tượng để lưu trữ doanh thu theo ngày
 	const revenueByDate = {};
 
 	// Duyệt qua từng đơn hàng và nhóm theo ngày
 	data.forEach(order => {
-		const date = getDate2(order.createAt);
+		const date = getDate2(order.createAt)
 		if (revenueByDate[date]) {
-			revenueByDate[date] += order.totalPrice;
+			revenueByDate[date] += order.totalPrice
 		} else {
-			revenueByDate[date] = order.totalPrice;
+			revenueByDate[date] = order.totalPrice
 		}
 	});
 
@@ -83,9 +91,13 @@ export const formatToChart = (data) => {
 		revenue: revenueByDate[date] * 1000
 	}));
 
-	const test = (data) => {
-		const startDate = 1
-		const endDate = new Date().getDate()
+	const test = (data, month) => {
+		const startDate = 1;
+		const currentMonth = new Date().getMonth() + 1; // Lấy tháng hiện tại (0-based nên +1)
+		const currentDate = new Date().getDate();
+
+		// Nếu là tháng hiện tại thì lấy đến ngày hiện tại, nếu không thì lấy đến 31
+		const endDate = month === currentMonth ? currentDate : 31;
 		let result = [];
 		for (let i = startDate; i <= endDate; i++) {
 			// Tìm ngày trong data
@@ -101,18 +113,29 @@ export const formatToChart = (data) => {
 		return result
 	}
 
-	return test(result)
+	return test(result, month)
 }
 
 export const getDatabyDay = (data, filterDate) => {
 	if (filterDate === '') return 'Giá trị đầu vào không hợp lệ.'
-	const getDate2 = (createAt) => `${new Date(createAt).getDate()}/${new Date(createAt).getMonth() + 1}/${new Date(createAt).getFullYear()}`;
-	return data.filter((order) => getDate2(order.createAt) === filterDate)
+
+	const getDate2 = (createAt) => {
+		const date = new Date(formatDateForTextField(createAt))
+		const day = String(date.getDate()).padStart(2, '0')
+		const month = String(date.getMonth() + 1).padStart(2, '0')
+		const year = date.getFullYear()
+		return `${day}/${month}/${year}`
+	}
+	const test = data.filter((order) => {
+		return getDate2(order.createAt) === filterDate
+	})
+	return test
+
 }
 export const getAllDayData = (data) => {
-	const getDate2 = (createAt) => new Date(createAt).getDate();
+	const getDate2 = (createAt) => new Date(formatDateForTextField(createAt)).getDate()
 	const months = [...data].map((order) => getDate2(order.createAt))
-	const uniqueMonths = [...new Set(months)];
+	const uniqueMonths = [...new Set(months)]
 	return uniqueMonths.map(m => {
 		let arr = {}
 		arr = data.filter(d => {
@@ -123,4 +146,9 @@ export const getAllDayData = (data) => {
 			order: arr
 		}
 	})
+}
+export const formatAddress = (address) => {
+	if (!address) return ''
+	return address.replace('/', '%2F').split(' ').join('+')
+
 }

@@ -18,9 +18,10 @@ import ListItem from '@mui/material/ListItem'
 import ListItemButton from '@mui/material/ListItemButton'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
-
+import LogoutIcon from '@mui/icons-material/Logout'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
-
+import { useNavigate } from 'react-router-dom'
+import Avatar from '@mui/material/Avatar'
 import Overview from '~/components/Overview/Overview'
 import Report from '~/components/Report/Report'
 import Statistic from '~/components/Statistic/Statistic'
@@ -28,23 +29,61 @@ import CustomPage from '~/components/CustomPage/CustomPage'
 import CustomDate from '~/untils/customDate'
 import authorizedAxiosIntance from '~/untils/authorizedAxios'
 import axios from 'axios'
+import { getUserById_API, handleLogoutAPI, updateDetailUser_API } from '~/apis/index'
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Tooltip } from '@mui/material'
+import CloseIcon from '@mui/icons-material/Close'
+import { toast } from 'react-toastify'
+import UpdateUser from '~/components/Statistic/UpdateUser'
 
 function Admin() {
+	const [slug] = useState('tiemcur')
+	const navigate = useNavigate()
 	const DRAWER_WIDTH = '320px'
 	const STATISTICS_LIST = ['Sản phẩm', 'Người dùng', 'Khách hàng']
-	const PAGE_LIST = ['Trang chủ', 'Trang sản phẩm', 'Trang Củ đi lạc']
+	const PAGE_LIST = ['Trang chủ', 'Trang sản phẩm', 'Trang Blog']
 	const year = new CustomDate().getFullYear()
 	const [user, setUser] = useState(null)
-
+	const [userDetail, setUserDetail] = useState({})
 	const [filterPrice, setFilterPrice] = useState('latest')
 	const [openDrawer, setOpenDrawer] = useState(true)
-	const [title, setTitle] = useState('Trang chủ')
+	const [viewInfo, setViewInfo] = useState(null)
+	const [title, setTitle] = useState('Tổng quan')
 
+	const [anchorEl, setAnchorEl] = useState(null)
+	useEffect(() => {
+		if (user) {
+			getUserById_API('tiemcur', user?.id)
+				.then(data => {
+					setUserDetail(data)
+				}
+				)
+		}
+	}, [user])
 	const handleToggleDrawer = () => {
 		setOpenDrawer(!openDrawer)
 	}
+	const updateDetailUser = async (data) => {
+		console.log('data: ', data)
+		const ttestt = await updateDetailUser_API('tiemcur', data)
+	}
+	const handleViewInfo = () => {
+		setViewInfo(true)
+	}
+	const handleLogout = () => {
+		handleLogoutAPI(slug).then(data => {
+			localStorage.removeItem('userInfo')
+			setUser(null)
+			navigate('/login')
+		})
+	}
+	const handleClose = () => {
+		setAnchorEl(null)
+	}
+	const handleMenu = (event) => {
+		setAnchorEl(event.currentTarget)
+	}
 
-	document.title = 'Admin Tiem CUR'
+	document.title = 'Admin Tiem CUX'
 	useEffect(() => {
 		const testAccess = async () => {
 			const res = await authorizedAxiosIntance.get('http://localhost:3000/v1/web/tiemcur/accesstoken')
@@ -82,15 +121,51 @@ function Admin() {
 								{PAGE_LIST.includes(title) && `Chỉnh sửa: ${title}`}
 							</Typography>
 
-							{/* <div>
-								<IconButton>
-									<AccountCircle />
-								</IconButton>
-								<Menu>
-									<MenuItem >Profile</MenuItem>
-									<MenuItem >My account</MenuItem>
+							<div>
+								<Button
+									variant='outlined'
+									sx={{ color: '#000', textTransform: 'unset' }}
+									onClick={handleMenu}>
+									<Typography variant="h6" >{user?.email}</Typography>
+									<Avatar
+										sx={{ bgcolor: 'sencondary.main', ml: '12px' }}
+									/>
+								</Button>
+								<Menu
+									id="menu-appbar"
+									anchorEl={anchorEl}
+									anchorOrigin={{
+										vertical: 'bottom',
+										horizontal: 'left'
+									}}
+									keepMounted
+									transformOrigin={{
+										vertical: 'top',
+										horizontal: 'left'
+									}}
+									open={Boolean(anchorEl)}
+									onClose={handleClose}
+
+								>
+									<MenuItem onClick={handleViewInfo} >Thông tin tài khoản</MenuItem>
+									<MenuItem onClick={handleLogout} sx={{ color: 'error.main', textAlign: 'center' }}>Đăng xuất <LogoutIcon sx={{ ml: '8px' }} /></MenuItem>
 								</Menu>
-							</div> */}
+							</div>
+							<Dialog
+								open={!!viewInfo}
+								onClose={() => setViewInfo(false)}
+								sx={{ '& .MuiPaper-root': { minWidth: '800px', maxWidth: '800px' } }}
+							>
+								<DialogTitle sx={{ backgroundColor: 'secondary.main', color: '#fff' }}>
+									Cập nhật thông tin cá nhân
+									<Tooltip title="Đóng ">
+										<CloseIcon onClick={() => setViewInfo(false)} sx={{ position: 'absolute', top: '8px', right: '8px', cursor: 'pointer' }} />
+									</Tooltip>
+								</DialogTitle>
+								<DialogContent>
+									<UpdateUser userDetail={userDetail} closeTest={() => setViewInfo(false)} updateDetailUser={updateDetailUser} />
+								</DialogContent>
+							</Dialog>
 						</Toolbar>
 					</AppBar>
 				</Box>

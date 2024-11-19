@@ -97,7 +97,7 @@ function Store({ type }) {
 						sm: '70%',
 						md: '500px'
 					},
-					justifyContent: 'space-between'
+					justifyContent: 'flex-start'
 				}}>
 					{/* ----------------------------------filterColor------------------------------------------------ */}
 					<Box sx={{
@@ -119,6 +119,9 @@ function Store({ type }) {
 								<MenuItem value={'black'}>Đen</MenuItem>
 								<MenuItem value={'white'}>Trắng</MenuItem>
 								<MenuItem value={'red'}>Đỏ</MenuItem>
+								<MenuItem value={'purple'}>Tím</MenuItem>
+								<MenuItem value={'green'}>Xanh lục</MenuItem>
+								<MenuItem value={'blue'}>Xanh lam</MenuItem>
 								<MenuItem value={'organe'}>Cam</MenuItem>
 								<MenuItem value={'yellow'}>Vàng</MenuItem>
 								<MenuItem value={'camo'}>Camo</MenuItem>
@@ -152,39 +155,6 @@ function Store({ type }) {
 							</Select>
 						</FormControl>
 					</Box>
-
-
-					{/* ----------------------------------filterFabric------------------------------------------------ */}
-					<Box sx={{
-						minWidth: '30%'
-					}}>
-						<FormControl sx={{
-							minWidth: {
-								xs: '100%'
-							}
-						}}>
-							<InputLabel id="fabric-select-label">Loại vải</InputLabel>
-							<Select
-								labelId='fabric-select-label'
-								value={filter.fabric}
-								onChange={(e) => { setFilter({ ...filter, fabric: e.target.value }) }}
-								inputProps={{ MenuProps: { disableScrollLock: true } }}
-							>
-								<MenuItem value={''}>None</MenuItem>
-								<MenuItem value={'khaki'}>Khaki</MenuItem>
-								<MenuItem value={'coduroy'}>Nhung tăm</MenuItem>
-								<MenuItem value={'offort'}>Offort</MenuItem>
-								<MenuItem value={'hawai'}>Hawai</MenuItem>
-								<MenuItem value={'jean'}>Jean</MenuItem>
-								<MenuItem value={'kate'}>Jean</MenuItem>
-								<MenuItem value={'sweater'}>Sweater</MenuItem>
-								<MenuItem value={'flanel'}>Flanel</MenuItem>
-								<MenuItem value={'linen'}>Linen</MenuItem>
-								<MenuItem value={'other'}>Khác..</MenuItem>
-							</Select>
-						</FormControl>
-					</Box>
-
 				</Box>
 
 				{/*------------------------filterPrice--------------------------------  */}

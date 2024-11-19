@@ -20,23 +20,40 @@ import { DateField } from '@mui/x-date-pickers/DateField';
 
 import dayjs from 'dayjs'
 import { isEmpty } from 'lodash'
-import { formatToChart, formatDate, getDatabyDay, formatTime, getAllDayData } from '~/untils/format'
+import { formatToChart, formatDate, getDatabyDay, formatTime, getAllDayData, formatDateForTextField } from '~/untils/format'
 import CustomDate from '~/untils/customDate'
+import { TextField } from '@mui/material'
+import { toast } from 'react-toastify'
 function Overview() {
+	const [slug] = useState('tiemcur')
 	const [filterMonth, setFilterMonth] = useState(new Date().getMonth() + 1)
-	const [filterDate, setFilterDate] = useState(dayjs(new Date()))
-
+	const [filterDate, setFilterDate] = useState(formatDateForTextField(new Date().toISOString()))
 	const [allOrder, setAllOrder] = useState([])
-	console.log('allOrder: ', allOrder)
 	const [monthList, setMonthList] = useState([])
+	useEffect(() => {
+		const currentYear = new Date().getFullYear();
+		let newFilterDate;
 
+		if (filterMonth === new Date().getMonth() + 1) {
+			// If the selected month is the current month, set filterDate to today's date
+			newFilterDate = new Date()
+		} else if (filterMonth === new Date().getMonth()) {
+			// If the selected month is the last month, set filterDate to the last day of the previous month
+			const lastDayOfPreviousMonth = dayjs(new Date(currentYear, filterMonth - 1, 1)).endOf('month').toDate();
+			newFilterDate = lastDayOfPreviousMonth
+		} else {
+			// For other months, set to the first day of the selected month
+			newFilterDate = new Date(currentYear, filterMonth - 1, 1);
+		}
+
+		setFilterDate(formatDateForTextField(newFilterDate.toISOString()));
+	}, [filterMonth])
 	useEffect(() => {
-		getMonthList_API('tiemcur').then((month) => setMonthList(month))
-	}, [allOrder])
-	useEffect(() => {
-		TEST_getAllOrder_API('tiemcur', filterMonth).then((month) => setAllOrder(month))
+		getMonthList_API(slug).then((month) => setMonthList(month))
 	}, [])
-	// console.log(formatDate(dayjs(new CustomDate('2022-04-17')).toISOString()))
+	useEffect(() => {
+		TEST_getAllOrder_API(slug, filterMonth).then((month) => setAllOrder(month))
+	}, [filterMonth])
 
 	const totalRevenue = useMemo(() => {
 		return allOrder?.reduce((accumulator, currentValue) => {
@@ -45,14 +62,14 @@ function Overview() {
 	}, [allOrder])
 
 	const dataChart = useMemo(() => {
-		return formatToChart(allOrder)
+		return formatToChart(allOrder, filterMonth)
 	}, [allOrder])
 	const allDayData = useMemo(() => {
 		return getAllDayData(allOrder)
 	}, [allOrder])
 
 	const dataByDay = useMemo(() => {
-		return getDatabyDay(allOrder, formatDate(filterDate === '' ? filterDate : filterDate.toISOString()))
+		return getDatabyDay(allOrder, formatDate(new Date(filterDate).toISOString()))
 	}, [allOrder, filterDate])
 
 
@@ -100,11 +117,11 @@ function Overview() {
 								<Select
 									value={filterMonth || ''}
 									inputProps={{ MenuProps: { disableScrollLock: true } }}
-									onChange={(e) => { setFilterMonth(e.target.value) }}
-									defaultValue=''
+									onChange={(e) => { setFilterMonth(parseInt(e.target.value)) }}
+									defaultValue=""
 								>
 									{!isEmpty(monthList) && monthList.map((item, index) => (
-										<MenuItem key={index} value={`${item}`}>{`Tháng ${item}`}</MenuItem>
+										<MenuItem key={index} value={`${item}`} >{`Tháng ${item}`}</MenuItem>
 									))}
 								</Select>
 							</FormControl>
@@ -164,14 +181,10 @@ function Overview() {
 									{`${data.order.map(d => d.productList.map(a => a.quantity)).flat().reduce((a, b) => { return a + b }, 0)}`}
 								</Typography>
 								<Typography variant='body1' sx={{ color: 'secondary.main', fontWeight: '700' }} >
-									{`${new Intl.NumberFormat().format(dataChart.find(a => a.date === data.date.toString()).revenue)} VND`}
+									{`${new Intl.NumberFormat().format(dataChart.find(a => a.date === data.date.toString())?.revenue)} VND`}
 								</Typography>
 							</Box>
 						))}
-
-
-
-
 					</Box>
 				</Box>
 
@@ -193,62 +206,45 @@ function Overview() {
 
 				<Box sx={{ padding: '20px' }}>
 					<Box sx={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #ccc', alignItems: 'center' }}>
-						<Typography variant='h6' >{`Chi tiết hóa đơn bán hàng ngày ${formatDate(filterDate.toISOString())} `}</Typography>
+						<Typography variant='h6' >{`Chi tiết hóa đơn bán hàng ngày ${formatDate(new Date(filterDate).toISOString())} `}</Typography>
+
 						<Box sx={{
-							maxWidth: {
-								xs: '100%',
-								md: '200px'
-							},
-							minWidth: {
-								xs: '100%',
-								md: '200px'
-							},
 							mb: '8px',
-							background: 'transparent',
+							minWidth: '200px',
+							maxWidth: '200px',
 							'& .MuiFormLabel-root': {
-								right: 'unset !important',
-								left: '0',
-								top: '-4px',
-								backgroundColor: '#fff'
+								fontSize: '16px',
+								right: 'auto',
+								left: '0'
 							},
 							'&  .MuiOutlinedInput-root ': {
 								fontSize: '16px',
 								' & .MuiOutlinedInput-notchedOutline': {
 									border: '1px solid #000 !important'
 								}
-							},
-							'& .MuiInputBase-root': {
-								color: 'primary.dark',
-								fontSize: '18px',
-								'& div': {
-									p: ' 8px'
-								},
-								'& fieldset': {
-									borderColor: '#000 !important',
-								},
-								'& .MuiOutlinedInput-notchedOutline': {
-									border: '1px solid #000',
-									borderColor: '#000'
-								}
 							}
 						}}>
+							<TextField
+								fullWidth
+								type="date"
+								variant="outlined"
+								size='small'
+								label="Ngày"
+								value={filterDate}
+								onChange={(e) => {
+									const selectedDate = new Date(e.target.value)
+									const selectedMonth = selectedDate.getMonth() + 1
 
-							<LocalizationProvider dateAdapter={AdapterDayjs}>
-								<DateField
-									label="Date"
-									defaultValue={dayjs(new Date())}
-									format="DD/MM/YYYY"
-									value={filterDate}
-									onChange={(data) => {
-										if (!data.isValid()) {
-											console.log('erỏ')
+									if (selectedMonth !== filterMonth) {
+										toast.error('Bạn không thể thay đổi tháng/năm.', { position: 'bottom-right' })
+										return
+									}
+									setFilterDate(e.target.value)
 
-										} else {
-											setFilterDate(dayjs(new Date(data)))
-										}
-									}}
-								/>
-							</LocalizationProvider>
+								}}
+								InputLabelProps={{ shrink: true }}
+							/>
+
 						</Box>
 					</Box>
 					<Box sx={{
@@ -289,7 +285,7 @@ function Overview() {
 										> <span> Phương thức thanh toán: </span>
 											{data.type === 'online' ? 'Mua hàng Online' : 'Mua hàng tại cửa hàng'}
 											{'  -  '}
-											{data.payMethod === 'cash' ? 'Thanh toán bằng tiền mặt' : 'Thanh toán bằng huyển khoản'}
+											{data.payMethod === 'cash' ? 'Thanh toán bằng tiền mặt' : 'Thanh toán bằng chuyển khoản'}
 										</Typography>
 										<Box sx={{ m: '12px 0' }}>
 											<Typography variant='h6'
