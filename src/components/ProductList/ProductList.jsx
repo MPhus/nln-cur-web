@@ -164,6 +164,9 @@ function BestSeller({ products, homePage, type }) {
 									<Typography gutterBottom variant="body1" component="p">
 										{parseFloat(`${(item.price - (item.price * (item.savePercent / 100)))}`).toFixed(1) + '00 VND'}
 									</Typography>
+									<Typography gutterBottom variant="body1" component="p" sx={{ ml: '8px', '& span': { textTransform: 'uppercase' } }}>
+										Size : <span>{item.size}</span>
+									</Typography>
 
 									{
 										!!item.savePercent &&

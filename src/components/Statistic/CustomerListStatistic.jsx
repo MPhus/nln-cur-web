@@ -36,7 +36,8 @@ function CustomerListStatistic() {
 	const [numberOfPage, setNumberOfPage] = useState(1)
 
 	const totalPage = customerList?.totalPage
-
+	console.log('customerList: ', customerList)
+	const totalProduct = customerList?.totalCustomer
 	useEffect(() => {
 		const filter = { fullname: '', page: numberOfPage, limit: 10, email: '', phone: '', searchtext: searchText }
 		// fetchCustomer_API('tiemcur', filter).then(data => setCustomerList(data))
@@ -74,7 +75,7 @@ function CustomerListStatistic() {
 					borderRadius: '8px',
 					mb: '40px',
 				}}>
-					<Typography variant='h4' sx={{ color: 'secondary.main', fontWeight: '700' }} >Tổng số sản phẩm: 1600</Typography>
+					<Typography variant='h4' sx={{ color: 'secondary.main', fontWeight: '700' }} >Tổng số Khách hàng: {totalProduct}</Typography>
 					<Box sx={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
 						<TextField
 							id="filled-search"
@@ -194,7 +195,7 @@ function CustomerListStatistic() {
 										<Typography variant='h6'
 											sx={{ '& span': { fontWeight: 'bold' } }}
 										> <span> Phương thức thanh toán: </span>
-											{data.type === 'online' ? 'Mua hàng Online' : 'Mua hàng tại cửa hàng'}
+											{data.type === 'online' ? 'Mua hàng Online' : 'Mua hàng Online'}
 											{'  -  '}
 											{data.payMethod === 'cash' ? 'Thanh toán bằng tiền mặt' : 'Thanh toán bằng chuyển khoản'}
 

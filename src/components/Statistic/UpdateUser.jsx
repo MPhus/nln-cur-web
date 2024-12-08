@@ -38,8 +38,8 @@ function UpdateUser({ userDetail, closeTest, updateDetailUser, DeleteUser }) {
 	const password = useRef({})
 	password.current = watch('password', '')
 	const submitSettingSlide = async (data) => {
-		const { email, name, isAdmin, phone, password, oldPassword } = data
-		const dataSubmit = { email, name, isAdmin, phone, webId: newUser.webId, _id: newUser._id, password, oldPassword }
+		const { email, name, phone, password, oldPassword } = data
+		const dataSubmit = { email, name, isAdmin: newUser?.isAdmin, phone, webId: newUser.webId, _id: newUser._id, password, oldPassword }
 
 		updateDetailUser(dataSubmit)
 			.then(data => {
@@ -69,7 +69,7 @@ function UpdateUser({ userDetail, closeTest, updateDetailUser, DeleteUser }) {
 			<form onSubmit={handleSubmit(submitSettingSlide)} encType="multipart/form-data">
 				<Box  >
 					<Box sx={{ padding: '0 20px' }}>
-						{!newUser?.isOwner &&
+						{/* {!newUser?.isOwner &&
 							<TextField
 								select
 								label="Vai trò"
@@ -101,7 +101,7 @@ function UpdateUser({ userDetail, closeTest, updateDetailUser, DeleteUser }) {
 								<MenuItem value={false}>Nhân viên</MenuItem>
 								<MenuItem value={true}>Quản lý</MenuItem>
 							</TextField>
-						}
+						} */}
 
 						<TextField
 							disabled

@@ -283,7 +283,7 @@ function Overview() {
 										<Typography variant='h6'
 											sx={{ '& span': { fontWeight: 'bold' } }}
 										> <span> Phương thức thanh toán: </span>
-											{data.type === 'online' ? 'Mua hàng Online' : 'Mua hàng tại cửa hàng'}
+											{data.type === 'online' ? 'Mua hàng Online' : 'Mua hàng tại Online'}
 											{'  -  '}
 											{data.payMethod === 'cash' ? 'Thanh toán bằng tiền mặt' : 'Thanh toán bằng chuyển khoản'}
 										</Typography>

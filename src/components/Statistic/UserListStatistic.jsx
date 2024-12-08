@@ -41,10 +41,12 @@ function UserListStatistic() {
 	const [userDetail, setUserDetail] = useState({})
 	const [loading, setLoading] = useState(false)
 	const [isAdminFilter, setIsAdminFilter] = useState(false)
+	console.log('isAdminFilter: ', isAdminFilter)
 	const [openAddUser, setOpenAddUser] = useState(false)
 	const [testtt, setTesttt] = useState(false)
 	const totalPage = userList?.totalPage
 	const totalUser = userList?.totalUser
+	const userRole = isAdminFilter ? 'quản lý' : 'nhân viên'
 
 	const [newUser, setNewUser] = useState({
 		email: '',
@@ -202,7 +204,7 @@ function UserListStatistic() {
 					borderRadius: '8px',
 					mb: '40px',
 				}}>
-					<Typography variant='h4' sx={{ color: 'secondary.main', fontWeight: '700' }} >Tổng người dùng: {totalUser}</Typography>
+					<Typography variant='h4' sx={{ color: 'secondary.main', fontWeight: '700' }} >Tổng số {userRole}: {totalUser}</Typography>
 					<Box sx={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
 
 						<Button variant='outlined' sx={{

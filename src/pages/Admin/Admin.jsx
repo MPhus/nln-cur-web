@@ -83,7 +83,7 @@ function Admin() {
 		setAnchorEl(event.currentTarget)
 	}
 
-	document.title = 'Admin Tiem CUX'
+	document.title = 'Admin TiemCur'
 	useEffect(() => {
 		const testAccess = async () => {
 			const res = await authorizedAxiosIntance.get(`${API_ROOT}/v1/web/tiemcur/accesstoken`)

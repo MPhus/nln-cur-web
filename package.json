@@ -3,6 +3,10 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "author": "MPhus",
+  "engines": {
+    "node": ""
+  },
   "scripts": {
     "dev": "cross-env BUILD_MODE=dev vite --host",
     "build": "cross-env BUILD_MODE=production vite build --base=./",
