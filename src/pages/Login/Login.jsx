@@ -1,7 +1,7 @@
 import { Alert, Box, Button, CardActions, SvgIcon, TextField, Typography, Zoom } from '@mui/material'
 import { Card as MuiCard } from '@mui/material'
 import { useForm } from 'react-hook-form'
-import { ReactComponent as LogoIconBlack } from '~/assets/svgIcon/cuxlogob_black.svg'
+import { ReactComponent as LogoIconBlack } from '~/assets/svgIcon/curlogob_black.svg'
 import authorizedAxiosIntance from '~/untils/authorizedAxios'
 import { useNavigate } from 'react-router-dom'
 import { API_ROOT } from '~/untils/contant'

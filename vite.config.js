@@ -4,7 +4,8 @@ import svgr from 'vite-plugin-svgr'
 
 export default defineConfig({
   define: {
-    // 'process.env': process.env
+    // eslint-disable-next-line no-undef
+    'process.env': process.env
   },
   plugins: [
     react(),

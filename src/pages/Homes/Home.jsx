@@ -38,7 +38,7 @@ function Home() {
 
 	return (
 		<div>
-			{!homePage && <div>Loadding</div>}
+			{!homePage && <div>Server free nên lâu không sài bị stop. Đợi 60s F5 lại là oke. Nếu chưa oke đợi tiếp 60s.</div>}
 			{homePage &&
 				<div style={{ overflow: 'hidden' }} >
 
