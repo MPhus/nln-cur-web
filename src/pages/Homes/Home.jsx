@@ -35,10 +35,14 @@ function Home() {
 
 	// const topBestSeller = getBestSeller('top', 4, 'sold')
 	// const bottomBestSeller = getBestSeller('bottom', 4, 'sold')
+	if (!homePage) {
+		return (
+			<div>Server free nên lâu không sài bị stop. Đợi 60s F5 lại là oke. Nếu chưa oke đợi tiếp 60s.</div>
+		)
+	}
 
 	return (
 		<div>
-			{!homePage && <div>Server free nên lâu không sài bị stop. Đợi 60s F5 lại là oke. Nếu chưa oke đợi tiếp 60s.</div>}
 			{homePage &&
 				<div style={{ overflow: 'hidden' }} >
 
