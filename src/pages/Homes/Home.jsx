@@ -8,6 +8,7 @@ import Box from '@mui/material/Box'
 import { getHomePage, getBestSeller } from '~/apis/mock'
 import { useEffect, useState } from 'react'
 import { fetchHomePage_API, getProductBestSeller } from '~/apis/index'
+import { CircularProgress, Typography } from '@mui/material'
 
 function Home() {
 	const [homePage, setHomePage] = useState(null)
@@ -37,7 +38,20 @@ function Home() {
 	// const bottomBestSeller = getBestSeller('bottom', 4, 'sold')
 	if (!homePage) {
 		return (
-			<div>Server free nên lâu không sài bị stop. Đợi 60s F5 lại là oke. Nếu chưa oke đợi tiếp 60s.</div>
+			<Box sx={{
+				display: 'flex',
+				justifyContent: 'center',
+				flexDirection: 'column',
+				alignItems: 'center',
+				width: '100vw',
+				height: '100vh',
+				color: 'secondary.main',
+				gap: 2
+			}}>
+				<CircularProgress sx={{ color: 'secondary.main' }} />
+				<Typography variant='h5'>Server free nên lâu không sài bị stop.</Typography>
+				<Typography variant='h5'> Đợi xíu nhen.</Typography>
+			</Box>
 		)
 	}
 
